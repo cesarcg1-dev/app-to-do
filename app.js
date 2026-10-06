@@ -17,6 +17,16 @@ probarConexion();
 const formulario = document.getElementById("formulario");
 const inputTitulo = document.getElementById("titulo");
 const lista = document.getElementById("lista");
+const mensaje = document.getElementById("mensaje");
+
+function mostrarMensaje(texto, tipo) {
+  mensaje.textContent = texto;
+  mensaje.className = tipo;
+  setTimeout(function () {
+    mensaje.textContent = "";
+    mensaje.className = "";
+  }, 3000);
+}
 
 /*function agregarActividad(texto) {
   const item = document.createElement("li");
@@ -70,9 +80,11 @@ formulario.addEventListener("submit", async function (evento) {
   const texto = inputTitulo.value.trim();
   if (texto === "") return;
 
+  mostrarMensaje("Guardando actividad...", "info");
   const guardada = await guardarActividad(texto);
   if (!guardada) return;
 
+  mostrarMensaje("Actividad guardada con éxito.", "exito");
   await cargarActividades();
   inputTitulo.value = "";
   inputTitulo.focus();
@@ -85,7 +97,9 @@ async function guardarActividad(titulo) {
 
   if (error) {
     console.error("Error al guardar:", error);
+    mostrarMensaje("Error al guardar la actividad.", "error");
     return false;
+
   }
   return true;
 }
@@ -98,8 +112,10 @@ async function eliminarActividad(id) {
 
   if (error) {
     console.error("Error al eliminar:", error);
+    mostrarMensaje("Error al eliminar la actividad.", "error");
     return;
   }
+  mostrarMensaje("Actividad eliminada con éxito.", "exito");
   await cargarActividades();
 }
 
@@ -111,6 +127,7 @@ async function actualizarActividad(id, nuevoTitulo) {
 
   if (error) {
     console.error("Error al actualizar:", error);
+    mostrarMensaje("Error al actualizar la actividad.", "error");
     return;
   }
   await cargarActividades();
@@ -126,6 +143,7 @@ async function cargarActividades() {
 
   if (error) {
     console.error("Error al cargar:", error);
+    mostrarMensaje("Error al cargar las actividades.", "error");
     return;
   }
 

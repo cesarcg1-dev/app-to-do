@@ -73,3 +73,17 @@ li .editar {
 li .editar:hover {
   background-color: #d68910;
 }
+
+#mensaje {
+  text-align: center;
+  min-height: 24px;
+  margin: 0 0 12px;
+}
+
+#mensaje.ok {
+  color: #27ae60;
+}
+
+#mensaje.error {
+  color: #e74c3c;
+}
