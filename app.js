@@ -31,6 +31,15 @@ function agregarActividad(actividad) {
   const texto = document.createElement("span");
   texto.textContent = actividad.titulo;
 
+  const botonEditar = document.createElement("button");
+    botonEditar.textContent = "Editar";
+    botonEditar.className = "editar";
+    botonEditar.addEventListener("click", function () {
+      const nuevoTitulo = prompt("Edita la actividad:", actividad.titulo);
+      if (nuevoTitulo === null || nuevoTitulo.trim() === "") return;
+      actualizarActividad(actividad.id, nuevoTitulo.trim());
+    });
+
   const botonEliminar = document.createElement("button");
   botonEliminar.textContent = "Eliminar";
   botonEliminar.addEventListener("click", function () {
@@ -38,6 +47,7 @@ function agregarActividad(actividad) {
   });
 
   item.appendChild(texto);
+  item.appendChild(botonEditar);
   item.appendChild(botonEliminar);
   lista.appendChild(item);
 }
@@ -92,6 +102,20 @@ async function eliminarActividad(id) {
   }
   await cargarActividades();
 }
+
+async function actualizarActividad(id, nuevoTitulo) {
+  const { error } = await clienteSupabase
+    .from("actividades")
+    .update({ titulo: nuevoTitulo })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error al actualizar:", error);
+    return;
+  }
+  await cargarActividades();
+}
+
 
 
 async function cargarActividades() {

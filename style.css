@@ -63,3 +63,13 @@ li button {
 li button:hover {
   background-color: #c0392b;
 }
+
+li .editar {
+  background-color: #f39c12;
+  margin-left: auto;
+  margin-right: 8px;
+}
+
+li .editar:hover {
+  background-color: #d68910;
+}
