@@ -100,3 +100,41 @@ li input[type="checkbox"] {
   text-decoration: line-through;
   color: #999;
 }
+
+.orden {
+  margin-bottom: 12px;
+}
+
+.orden select {
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+#mensaje.exito {
+  color: #27ae60;
+}
+
+#mensaje.info {
+  color: #2f80ed;
+}
+form select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.categoria {
+  background-color: #e8f0fe;
+  color: #2f80ed;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+}
+
+.categoria:empty {
+  display: none;
+}

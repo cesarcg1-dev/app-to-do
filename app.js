@@ -14,10 +14,14 @@ const clienteSupabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 probarConexion();
 */
 
+//constantes del Dom//
 const formulario = document.getElementById("formulario");
 const inputTitulo = document.getElementById("titulo");
 const lista = document.getElementById("lista");
 const mensaje = document.getElementById("mensaje");
+const selectorOrden = document.getElementById("orden");
+const selectorCategoria = document.getElementById("categoria");
+
 
 function mostrarMensaje(texto, tipo) {
   mensaje.textContent = texto;
@@ -49,6 +53,11 @@ const casilla = document.createElement("input");
     marcarCompletada(actividad.id, casilla.checked);
   });
 
+  const etiqueta = document.createElement("span");
+  etiqueta.className = "categoria";
+  if (actividad.categorias) {
+    etiqueta.textContent = actividad.categorias.nombre;
+  }
 
   const botonEditar = document.createElement("button");
     botonEditar.textContent = "Editar";
@@ -67,6 +76,7 @@ const casilla = document.createElement("input");
 
   item.appendChild(casilla);  
   item.appendChild(texto);
+  item.appendChild(etiqueta);
   item.appendChild(botonEditar);
   item.appendChild(botonEliminar);
   lista.appendChild(item);
@@ -91,8 +101,9 @@ formulario.addEventListener("submit", async function (evento) {
   if (texto === "") return;
 
   mostrarMensaje("Guardando actividad...", "info");
-  const guardada = await guardarActividad(texto);
-  if (!guardada) return;
+//  const guardada = await guardarActividad(texto);
+  const guardada = await guardarActividad(texto, selectorCategoria.value);
+if (!guardada) return;
 
   mostrarMensaje("Actividad guardada con éxito.", "exito");
   await cargarActividades();
@@ -100,10 +111,15 @@ formulario.addEventListener("submit", async function (evento) {
   inputTitulo.focus();
 });
 
-async function guardarActividad(titulo) {
+/*async function guardarActividad(titulo) {
   const { error } = await clienteSupabase
     .from("actividades")
     .insert({ titulo: titulo });
+*/
+async function guardarActividad(titulo, categoriaId) {
+  const { error } = await clienteSupabase
+    .from("actividades")
+    .insert({ titulo: titulo, categoria_id: categoriaId || null });
 
   if (error) {
     console.error("Error al guardar:", error);
@@ -156,11 +172,56 @@ async function marcarCompletada(id, completada) {
   await cargarActividades();
 }
 
-async function cargarActividades() {
+
+function aplicarOrden(consulta, criterio) {
+  if (criterio === "recientes") {
+    return consulta.order("creada_en", { ascending: false });
+  }
+  if (criterio === "estado") {
+    return consulta
+      .order("completada", { ascending: true })
+      .order("creada_en", { ascending: true });
+  }
+  if (criterio === "alfabetico") {
+    return consulta.order("titulo", { ascending: true });
+  }
+  return consulta.order("creada_en", { ascending: true });
+}
+
+async function cargarCategorias() {
   const { data, error } = await clienteSupabase
+    .from("categorias")
+    .select("*")
+    .order("nombre", { ascending: true });
+
+  if (error) {
+    console.error("Error al cargar categorías:", error);
+    mostrarMensaje("Error al cargar las categorías.", "error");
+    return;
+  }
+
+  data.forEach(function (categoria) {
+    const opcion = document.createElement("option");
+    opcion.value = categoria.id;
+    opcion.textContent = categoria.nombre;
+    selectorCategoria.appendChild(opcion);
+  });
+}
+
+async function cargarActividades() {
+ /* const { data, error } = await clienteSupabase
     .from("actividades")
     .select("*")
     .order("creada_en", { ascending: true });
+*/
+
+//let consulta = clienteSupabase.from("actividades").select("*");
+let consulta = clienteSupabase
+    .from("actividades")
+    .select("*, categorias(nombre)");
+consulta = aplicarOrden(consulta, selectorOrden.value);
+  const { data, error } = await consulta;
+
 
   if (error) {
     console.error("Error al cargar:", error);
@@ -174,4 +235,14 @@ async function cargarActividades() {
   });
 }
 
+const ordenGuardado = localStorage.getItem("orden");
+if (ordenGuardado !== null) {
+  selectorOrden.value = ordenGuardado;
+}
 cargarActividades();
+cargarCategorias();
+
+selectorOrden.addEventListener("change", function () {
+  localStorage.setItem("orden", selectorOrden.value);
+  cargarActividades();
+});

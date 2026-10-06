@@ -11,10 +11,23 @@
 
     <form id="formulario">
         <input type="text" id="titulo" placeholder="Escribe una actividad" required>
+        <select id="categoria">
+            <option value="">Sin categoría</option>
+        </select>
         <button type="submit">Agregar una actividad</button>
     </form>
 
 <p id="mensaje"></p>
+
+<div class="orden">
+  <label for="orden">Ordenar por:</label>
+  <select id="orden">
+    <option value="antiguas">Más antiguas primero</option>
+    <option value="recientes">Más recientes primero</option>
+    <option value="estado">Pendientes primero</option>
+    <option value="alfabetico">Alfabético (A-Z)</option>
+  </select>
+</div>
 
     <ul id="lista"></ul>
 
