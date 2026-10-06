@@ -18,11 +18,30 @@ const formulario = document.getElementById("formulario");
 const inputTitulo = document.getElementById("titulo");
 const lista = document.getElementById("lista");
 
-function agregarActividad(texto) {
+/*function agregarActividad(texto) {
   const item = document.createElement("li");
   item.textContent = texto;
   lista.appendChild(item);
 }
+*/
+
+function agregarActividad(actividad) {
+  const item = document.createElement("li");
+
+  const texto = document.createElement("span");
+  texto.textContent = actividad.titulo;
+
+  const botonEliminar = document.createElement("button");
+  botonEliminar.textContent = "Eliminar";
+  botonEliminar.addEventListener("click", function () {
+    eliminarActividad(actividad.id);
+  });
+
+  item.appendChild(texto);
+  item.appendChild(botonEliminar);
+  lista.appendChild(item);
+}
+
 /*
 formulario.addEventListener("submit", function (evento) {
   evento.preventDefault();
@@ -61,9 +80,18 @@ async function guardarActividad(titulo) {
   return true;
 }
 
+async function eliminarActividad(id) {
+  const { error } = await clienteSupabase
+    .from("actividades")
+    .delete()
+    .eq("id", id);
 
-
-
+  if (error) {
+    console.error("Error al eliminar:", error);
+    return;
+  }
+  await cargarActividades();
+}
 
 
 async function cargarActividades() {
@@ -79,7 +107,7 @@ async function cargarActividades() {
 
   lista.innerHTML = "";
   data.forEach(function (actividad) {
-    agregarActividad(actividad.titulo);
+    agregarActividad(actividad);
   });
 }
 
