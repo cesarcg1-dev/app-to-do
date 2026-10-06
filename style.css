@@ -87,3 +87,16 @@ li .editar:hover {
 #mensaje.error {
   color: #e74c3c;
 }
+
+li input[type="checkbox"] {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin-right: 10px;
+}
+
+.completada {
+  text-decoration: line-through;
+  color: #999;
+}

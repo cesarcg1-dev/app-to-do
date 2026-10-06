@@ -41,6 +41,15 @@ function agregarActividad(actividad) {
   const texto = document.createElement("span");
   texto.textContent = actividad.titulo;
 
+const casilla = document.createElement("input");
+  casilla.type = "checkbox";
+  casilla.checked = actividad.completada;
+  texto.classList.toggle("completada", actividad.completada);
+  casilla.addEventListener("change", function () {
+    marcarCompletada(actividad.id, casilla.checked);
+  });
+
+
   const botonEditar = document.createElement("button");
     botonEditar.textContent = "Editar";
     botonEditar.className = "editar";
@@ -56,6 +65,7 @@ function agregarActividad(actividad) {
     eliminarActividad(actividad.id);
   });
 
+  item.appendChild(casilla);  
   item.appendChild(texto);
   item.appendChild(botonEditar);
   item.appendChild(botonEliminar);
@@ -133,7 +143,18 @@ async function actualizarActividad(id, nuevoTitulo) {
   await cargarActividades();
 }
 
+async function marcarCompletada(id, completada) {
+  const { error } = await clienteSupabase
+    .from("actividades")
+    .update({ completada: completada })
+    .eq("id", id);
 
+  if (error) {
+    console.error("Error al marcar:", error);
+    mostrarMensaje("No se pudo cambiar el estado", "error");
+  }
+  await cargarActividades();
+}
 
 async function cargarActividades() {
   const { data, error } = await clienteSupabase
