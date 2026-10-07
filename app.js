@@ -22,6 +22,7 @@ const mensaje = document.getElementById("mensaje");
 const selectorOrden = document.getElementById("orden");
 const selectorCategoria = document.getElementById("categoria");
 const selectorFiltro = document.getElementById("filtro");
+const inputFecha = document.getElementById("fecha");
 
 function mostrarMensaje(texto, tipo) {
   mensaje.textContent = texto;
@@ -30,6 +31,18 @@ function mostrarMensaje(texto, tipo) {
     mensaje.textContent = "";
     mensaje.className = "";
   }, 3000);
+}
+
+function fechaDeHoy() {
+  const ahora = new Date();
+  const mes = String(ahora.getMonth() + 1).padStart(2, "0");
+  const dia = String(ahora.getDate()).padStart(2, "0");
+  return ahora.getFullYear() + "-" + mes + "-" + dia;
+}
+
+function formatearFecha(fecha) {
+  const partes = fecha.split("-");
+  return partes[2] + "/" + partes[1] + "/" + partes[0];
 }
 
 /*function agregarActividad(texto) {
@@ -59,6 +72,15 @@ const casilla = document.createElement("input");
     etiqueta.textContent = actividad.categorias.nombre;
   }
 
+  const fecha = document.createElement("span");
+  fecha.className = "fecha";
+  if (actividad.fecha_limite) {
+    fecha.textContent = "Vence: " + formatearFecha(actividad.fecha_limite);
+    const vencida = actividad.fecha_limite < fechaDeHoy() && !actividad.completada;
+    fecha.classList.toggle("vencida", vencida);
+  }
+
+
   const botonEditar = document.createElement("button");
     botonEditar.textContent = "Editar";
     botonEditar.className = "editar";
@@ -77,6 +99,7 @@ const casilla = document.createElement("input");
   item.appendChild(casilla);  
   item.appendChild(texto);
   item.appendChild(etiqueta);
+  item.appendChild(fecha);
   item.appendChild(botonEditar);
   item.appendChild(botonEliminar);
   lista.appendChild(item);
@@ -102,12 +125,17 @@ formulario.addEventListener("submit", async function (evento) {
 
   mostrarMensaje("Guardando actividad...", "info");
 //  const guardada = await guardarActividad(texto);
-  const guardada = await guardarActividad(texto, selectorCategoria.value);
+  const guardada = await guardarActividad(
+    texto,
+    selectorCategoria.value,
+    inputFecha.value
+  );
 if (!guardada) return;
 
   mostrarMensaje("Actividad guardada con éxito.", "exito");
   await cargarActividades();
   inputTitulo.value = "";
+  inputFecha.value = "";
   inputTitulo.focus();
 });
 
@@ -116,10 +144,20 @@ if (!guardada) return;
     .from("actividades")
     .insert({ titulo: titulo });
 */
-async function guardarActividad(titulo, categoriaId) {
+async function guardarActividad(titulo, categoriaId, fechaLimite) {
   const { error } = await clienteSupabase
     .from("actividades")
-    .insert({ titulo: titulo, categoria_id: categoriaId || null });
+ /*   .insert({ 
+      titulo: titulo, 
+      categoria_id: 
+      categoriaId || null });
+*/
+
+    .insert({
+      titulo: titulo,
+      categoria_id: categoriaId || null,
+      fecha_limite: fechaLimite || null
+    });
 
   if (error) {
     console.error("Error al guardar:", error);
@@ -186,6 +224,11 @@ function aplicarOrden(consulta, criterio) {
     return consulta.order("titulo", { ascending: true });
   }
   return consulta.order("creada_en", { ascending: true });
+  if (criterio === "fecha") {
+    return consulta
+      .order("fecha_limite", { ascending: true, nullsFirst: false })
+      .order("creada_en", { ascending: true });
+  }
 }
 
 function aplicarFiltro(consulta, categoriaId) {
