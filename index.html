@@ -12,10 +12,18 @@
     <form id="formulario">
         <input type="text" id="titulo" placeholder="Escribe una actividad" required>
         <input type="date" id="fecha" title="Fecha límite">
+        
         <select id="categoria">
             <option value="">Sin categoría</option>
         </select>
         <button type="submit">Agregar una actividad</button>
+
+        <select id="prioridad" title="Prioridad">
+            <option value="1">Alta</option>
+            <option value="2" selected>Media</option>
+            <option value="3">Baja</option>
+        </select>
+
     </form>
 
 <p id="mensaje"></p>
@@ -29,7 +37,8 @@
     <option value="estado">Pendientes primero</option>
     <option value="alfabetico">Alfabético (A-Z)</option>
     <option value="fecha">Fecha límite (próximas primero)</option>
-  </select>
+    <option value="prioridad">Prioridad (alta primero)</option>
+</select>
 
   <label for="filtro">Categoría:</label>
   

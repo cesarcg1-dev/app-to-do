@@ -23,6 +23,8 @@ const selectorOrden = document.getElementById("orden");
 const selectorCategoria = document.getElementById("categoria");
 const selectorFiltro = document.getElementById("filtro");
 const inputFecha = document.getElementById("fecha");
+const selectorPrioridad = document.getElementById("prioridad");
+const NOMBRES_PRIORIDAD = { 1: "Alta", 2: "Media", 3: "Baja" };
 
 function mostrarMensaje(texto, tipo) {
   mensaje.textContent = texto;
@@ -58,13 +60,17 @@ function agregarActividad(actividad) {
   const texto = document.createElement("span");
   texto.textContent = actividad.titulo;
 
-const casilla = document.createElement("input");
-  casilla.type = "checkbox";
-  casilla.checked = actividad.completada;
-  texto.classList.toggle("completada", actividad.completada);
-  casilla.addEventListener("change", function () {
-    marcarCompletada(actividad.id, casilla.checked);
-  });
+  const casilla = document.createElement("input");
+    casilla.type = "checkbox";
+    casilla.checked = actividad.completada;
+    texto.classList.toggle("completada", actividad.completada);
+    casilla.addEventListener("change", function () {
+      marcarCompletada(actividad.id, casilla.checked);
+    });
+
+  const prioridad = document.createElement("span");
+    prioridad.className = "prioridad prioridad-" + actividad.prioridad;
+    prioridad.textContent = NOMBRES_PRIORIDAD[actividad.prioridad];
 
   const etiqueta = document.createElement("span");
   etiqueta.className = "categoria";
@@ -98,6 +104,7 @@ const casilla = document.createElement("input");
 
   item.appendChild(casilla);  
   item.appendChild(texto);
+  item.appendChild(prioridad);
   item.appendChild(etiqueta);
   item.appendChild(fecha);
   item.appendChild(botonEditar);
@@ -125,11 +132,20 @@ formulario.addEventListener("submit", async function (evento) {
 
   mostrarMensaje("Guardando actividad...", "info");
 //  const guardada = await guardarActividad(texto);
-  const guardada = await guardarActividad(
+/*  const guardada = await guardarActividad(
     texto,
     selectorCategoria.value,
     inputFecha.value
   );
+*/
+
+  const guardada = await guardarActividad({
+      titulo: texto,
+      categoria_id: selectorCategoria.value || null,
+      fecha_limite: inputFecha.value || null,
+      prioridad: Number(selectorPrioridad.value)
+    });
+
 if (!guardada) return;
 
   mostrarMensaje("Actividad guardada con éxito.", "exito");
@@ -144,30 +160,7 @@ if (!guardada) return;
     .from("actividades")
     .insert({ titulo: titulo });
 */
-async function guardarActividad(titulo, categoriaId, fechaLimite) {
-  const { error } = await clienteSupabase
-    .from("actividades")
- /*   .insert({ 
-      titulo: titulo, 
-      categoria_id: 
-      categoriaId || null });
-*/
-
-    .insert({
-      titulo: titulo,
-      categoria_id: categoriaId || null,
-      fecha_limite: fechaLimite || null
-    });
-
-  if (error) {
-    console.error("Error al guardar:", error);
-    mostrarMensaje("Error al guardar la actividad.", "error");
-    return false;
-
-  }
-  return true;
-}
-
+/*
 async function eliminarActividad(id) {
   const { error } = await clienteSupabase
     .from("actividades")
@@ -181,6 +174,20 @@ async function eliminarActividad(id) {
   }
   mostrarMensaje("Actividad eliminada con éxito.", "exito");
   await cargarActividades();
+}
+*/
+
+async function guardarActividad(datos) {
+  const { error } = await clienteSupabase
+    .from("actividades")
+    .insert(datos);
+
+  if (error) {
+    console.error("Error al guardar:", error);
+    mostrarMensaje("Error al guardar la actividad.", "error");
+    return false;
+  }
+  return true;
 }
 
 async function actualizarActividad(id, nuevoTitulo) {
@@ -229,7 +236,11 @@ function aplicarOrden(consulta, criterio) {
       .order("fecha_limite", { ascending: true, nullsFirst: false })
       .order("creada_en", { ascending: true });
   }
-}
+  if (criterio === "prioridad") {
+      return consulta
+        .order("prioridad", { ascending: true })
+        .order("creada_en", { ascending: true });
+  }
 
 function aplicarFiltro(consulta, categoriaId) {
   if (categoriaId === "") return consulta;

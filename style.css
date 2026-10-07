@@ -59,6 +59,7 @@ li button {
   background-color: #e74c3c;
   padding: 6px 10px;
   font-size: 14px;
+  flex-wrap: wrap;
 }
 
 li button:hover {
@@ -167,3 +168,14 @@ form input[type="date"] {
   font-weight: bold;
 }
 
+.prioridad {
+  color: white;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+}
+
+.prioridad-1 { background-color: #e74c3c; }
+.prioridad-2 { background-color: #f39c12; }
+.prioridad-3 { background-color: #27ae60; }
