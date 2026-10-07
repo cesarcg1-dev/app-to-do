@@ -101,7 +101,15 @@ li input[type="checkbox"] {
   color: #999;
 }
 
+/*.orden {
+  margin-bottom: 12px;
+}*/
+
 .orden {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 12px;
 }
 

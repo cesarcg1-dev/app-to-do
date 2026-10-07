@@ -21,7 +21,7 @@ const lista = document.getElementById("lista");
 const mensaje = document.getElementById("mensaje");
 const selectorOrden = document.getElementById("orden");
 const selectorCategoria = document.getElementById("categoria");
-
+const selectorFiltro = document.getElementById("filtro");
 
 function mostrarMensaje(texto, tipo) {
   mensaje.textContent = texto;
@@ -188,6 +188,19 @@ function aplicarOrden(consulta, criterio) {
   return consulta.order("creada_en", { ascending: true });
 }
 
+function aplicarFiltro(consulta, categoriaId) {
+  if (categoriaId === "") return consulta;
+  if (categoriaId === "sin") return consulta.is("categoria_id", null);
+  return consulta.eq("categoria_id", categoriaId);
+}
+
+function crearOpcion(categoria) {
+  const opcion = document.createElement("option");
+  opcion.value = categoria.id;
+  opcion.textContent = categoria.nombre;
+  return opcion;
+}
+
 async function cargarCategorias() {
   const { data, error } = await clienteSupabase
     .from("categorias")
@@ -200,12 +213,18 @@ async function cargarCategorias() {
     return;
   }
 
-  data.forEach(function (categoria) {
+ /* data.forEach(function (categoria) {
     const opcion = document.createElement("option");
     opcion.value = categoria.id;
     opcion.textContent = categoria.nombre;
     selectorCategoria.appendChild(opcion);
   });
+*/
+  data.forEach(function (categoria) {
+    selectorCategoria.appendChild(crearOpcion(categoria));
+    selectorFiltro.appendChild(crearOpcion(categoria));
+  });
+
 }
 
 async function cargarActividades() {
@@ -219,7 +238,10 @@ async function cargarActividades() {
 let consulta = clienteSupabase
     .from("actividades")
     .select("*, categorias(nombre)");
-consulta = aplicarOrden(consulta, selectorOrden.value);
+
+  consulta = aplicarFiltro(consulta, selectorFiltro.value);
+  consulta = aplicarOrden(consulta, selectorOrden.value);
+  //consulta = aplicarOrden(consulta, selectorOrden.value);
   const { data, error } = await consulta;
 
 
@@ -246,3 +268,6 @@ selectorOrden.addEventListener("change", function () {
   localStorage.setItem("orden", selectorOrden.value);
   cargarActividades();
 });
+
+selectorFiltro.addEventListener("change", cargarActividades);
+
